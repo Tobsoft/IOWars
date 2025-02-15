@@ -24,8 +24,10 @@
     <ClInclude Include="src\Ledbar.hpp" />
     <ClInclude Include="src\LedPatterns.hpp" />
     <ClInclude Include="src\Leds.hpp" />
+    <ClInclude Include="src\pitches.h" />
     <ClInclude Include="src\RGB_LEDs.hpp" />
     <ClInclude Include="src\Seg7.hpp" />
+    <ClInclude Include="src\Sound.hpp" />
     <ClInclude Include="src\SPI.hpp" />
     <ClInclude Include="src\Stargate.hpp" />
   </ItemGroup>
@@ -38,6 +40,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\RGB_LEDs.cpp" />
     <ClCompile Include="src\Seg7.cpp" />
+    <ClCompile Include="src\Sound.cpp" />
     <ClCompile Include="src\SPI.cpp" />
     <ClCompile Include="src\Stargate.cpp" />
   </ItemGroup>

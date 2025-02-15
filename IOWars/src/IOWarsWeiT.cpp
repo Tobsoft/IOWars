@@ -47,4 +47,3 @@ bool IOWars::initializeDevice() {
     printf("IOWarrior device initialized successfully.\n");
     return true;
 }
-

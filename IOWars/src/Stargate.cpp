@@ -5,7 +5,7 @@
 
 // Konstruktor mit Initialisierungsliste
 Stargate::Stargate(IOWKIT_HANDLE* deviceHandle, IOWKIT100_IO_REPORT* report)
-    : DevHandle(deviceHandle), report(report), seg7(deviceHandle, report), rgb(deviceHandle, report), spi(deviceHandle, report), ledbar(&spi)
+    : DevHandle(deviceHandle), report(report), seg7(deviceHandle, report), rgb(deviceHandle, report), spi(deviceHandle, report), ledbar(&spi), sound(deviceHandle)
 {
 
 }

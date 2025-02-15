@@ -7,6 +7,7 @@
 #include "RGB_LEDs.hpp"
 #include "SPI.hpp"
 #include "Ledbar.hpp"
+#include "Sound.hpp"
 
 class Stargate {
 public:
@@ -17,11 +18,10 @@ public:
 	RGB_LEDs rgb;
 	SPI spi;
 	Ledbar ledbar;
+	Sound sound;
 
 	void enable_backlight(bool state);
 	void setLeds(byte states); // 0b 0 0 Re3 Re2 Re1 Li3 Li2 Li1
-
-	// TODO: Sound is P8.4
 
 private:
 	IOWKIT_HANDLE* DevHandle;         // Reference to IOWarrior handle

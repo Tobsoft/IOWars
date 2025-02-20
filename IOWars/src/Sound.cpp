@@ -1,6 +1,7 @@
+// Sound.cpp
+
 #include "IOWarsWeiT.hpp"
 #include "Stargate.hpp"
-#include "helper.hpp"
 
 #include "Sound.hpp"
 #include <iostream>
@@ -8,6 +9,11 @@
 #include <chrono>
 #include <thread>
 #include <cmath>
+
+struct Note {
+    float frequency;
+    float durationMs;
+};
 
 Sound::Sound(IOWKIT_HANDLE* deviceHandle) : DevHandle(deviceHandle), playing(false) {
 
@@ -27,18 +33,19 @@ void Sound::enable(bool state) {
 }
 
 void Sound::playTone(float frequency, float durationMs) {
-    if (frequency == 0.0f) {
-        stop();
-        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(durationMs)));
-        return;
-    }
-
-    setPWMFrequency(frequency);
     playing = true;
+    toneThread = std::thread([this, frequency, durationMs]() {
+        if (frequency == 0.0f) {
+            stop();
+            std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(durationMs)));
+            return;
+        }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(durationMs)));
+        setPWMFrequency(frequency);
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(durationMs)));
+        });
 
-    stop();
+    toneThread.detach(); // Detach the thread to allow independent execution
 }
 
 void Sound::stop() {
@@ -72,11 +79,47 @@ void Sound::setPWMFrequency(float frequency) {
 
     const uint32_t baseClock = 48000000; // 48MHz
 
-    // Calculate prescaler and cycle length using floating point precision
-    float prescaler = baseClock / (frequency * 65536.0f);
+    // Calculate prescaler and cycle length
+    uint16_t prescaler = baseClock / (frequency * 65536.0f);
     uint16_t cycleLength = static_cast<uint16_t>(baseClock / ((prescaler + 1.0f) * frequency));
     if (cycleLength > 65535) cycleLength = 65535;
     uint16_t pulseWidth = static_cast<uint16_t>(cycleLength / 2.0f);
 
-    configurePWM(static_cast<uint16_t>(prescaler), cycleLength, pulseWidth);
+    configurePWM(prescaler, cycleLength, pulseWidth);
+}
+
+void Sound::playMidi(const char* midiFile) {
+    char command[256];
+    const char* pythonScript = "src\\py\\midi_to_freq.py";
+    snprintf(command, sizeof(command), "python3 %s \"%s\"", pythonScript, midiFile);
+    system(command);
+
+    // Open the converted frequency file
+    char freqFile[256];
+    std::string midiPath(midiFile);
+    size_t dotPos = midiPath.find_last_of('.');
+    if (dotPos != std::string::npos) {
+        midiPath = midiPath.substr(0, dotPos);  // Remove the .mid extension
+    }
+    snprintf(freqFile, sizeof(freqFile), "%s.freq", midiPath.c_str());
+    FILE* file;
+    errno_t err = fopen_s(&file, freqFile, "r");
+    if (err != 0 || !file) {
+        printf("Failed to open %s\n", freqFile);
+        return;
+    }
+
+    std::vector<Note> notes;
+    float freq, duration;
+    while (fscanf_s(file, "%f %f", &freq, &duration) == 2) {
+        notes.push_back({ freq, duration });
+    }
+    fclose(file);
+
+    // Play parsed notes
+    for (const auto& note : notes) {
+        playTone(note.frequency, note.durationMs);
+        std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(note.durationMs)));
+    }
+    stop();
 }

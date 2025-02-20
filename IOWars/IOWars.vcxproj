@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\DS1307.hpp" />
+    <ClInclude Include="src\I2C.hpp" />
     <ClInclude Include="src\IOWarsWeiT.hpp" />
     <ClInclude Include="src\LCD.hpp" />
     <ClInclude Include="src\Ledbar.hpp" />
@@ -32,6 +34,8 @@
     <ClInclude Include="src\Stargate.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DS1307.cpp" />
+    <ClCompile Include="src\I2C.cpp" />
     <ClCompile Include="src\IOWarsWeiT.cpp" />
     <ClCompile Include="src\LCD.cpp" />
     <ClCompile Include="src\Ledbar.cpp" />
@@ -43,6 +47,9 @@
     <ClCompile Include="src\Sound.cpp" />
     <ClCompile Include="src\SPI.cpp" />
     <ClCompile Include="src\Stargate.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\py\midi_to_freq.py" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

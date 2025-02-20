@@ -4,7 +4,7 @@
 
 // Constructor
 IOWars::IOWars() 
-    : lcd(&DevHandle, &report), leds(&DevHandle, &report), stargate(&DevHandle, &report)
+    : lcd(&DevHandle, &report), leds(&DevHandle, &report), stargate(&DevHandle, &report), i2c(&DevHandle), rtc(i2c)
 {
 	SetConsoleOutputCP(1252);
     if (!initializeDevice()) {

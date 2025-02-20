@@ -15,6 +15,8 @@ extern "C" {
 #include "LCD.hpp"
 #include "Leds.hpp"
 #include "Stargate.hpp"
+#include "I2C.hpp"
+#include "DS1307.hpp"
 
 class IOWars {
 	public:
@@ -26,6 +28,8 @@ class IOWars {
 	    LCD lcd;
 	    Leds leds;
 		Stargate stargate;
+		I2C i2c;
+		DS1307 rtc;
 	    
 	private:
 		IOWKIT_HANDLE DevHandle;									//Variable f. Geräte(IOW)Nummer

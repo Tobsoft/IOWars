@@ -8,7 +8,12 @@ def midi_note_to_freq(note):
 def convert_midi(file_path):
     duration_multiplier = 1
 
-    mid = mido.MidiFile(file_path)
+    try:
+        mid = mido.MidiFile(file_path)
+    except:
+        file_path = "../IOWars/" + file_path
+        mid = mido.MidiFile(file_path)
+        
 
     events = []  # Stores (frequency, duration)
     active_notes = {}  # {note: start_time}

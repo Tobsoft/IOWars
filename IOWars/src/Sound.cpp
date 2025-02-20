@@ -90,7 +90,7 @@ void Sound::setPWMFrequency(float frequency) {
 
 void Sound::playMidi(const char* midiFile) {
     char command[256];
-    const char* pythonScript = "src\\py\\midi_to_freq.py";
+    const char* pythonScript = "../IOWars/src/py/midi_to_freq.py";
     snprintf(command, sizeof(command), "python3 %s \"%s\"", pythonScript, midiFile);
     system(command);
 
@@ -105,8 +105,13 @@ void Sound::playMidi(const char* midiFile) {
     FILE* file;
     errno_t err = fopen_s(&file, freqFile, "r");
     if (err != 0 || !file) {
-        printf("Failed to open %s\n", freqFile);
-        return;
+        char newFreqFile[256];
+        snprintf(newFreqFile, sizeof(freqFile), "../IOWars/%s", freqFile);
+        errno_t err = fopen_s(&file, newFreqFile, "r");
+        if (err != 0 || !file) {
+            printf("Failed to open %s or %s\n", freqFile, newFreqFile);
+            return;
+        }
     }
 
     std::vector<Note> notes;

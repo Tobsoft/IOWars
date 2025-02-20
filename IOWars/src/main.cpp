@@ -30,5 +30,6 @@ int main() {
     printf("Midi played!\n");
 
     ioWars.lcd.write("Hello, World!");
+    system("pause");
     return 0;
 }

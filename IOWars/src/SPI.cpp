@@ -10,26 +10,26 @@
 
 SPI::SPI(IOWKIT_HANDLE* deviceHandle, IOWKIT100_IO_REPORT* report)
     : DevHandle(deviceHandle), report(report) {
-    // Initialize pins to default states
-    configurePins();
 }
 
 SPI::~SPI() {
-    disableSPI();
+
 }
 
-void SPI::configurePins() {
-    // Set SCK and MOSI as output, MISO as input, and SS as output
-    report->Bytes[10] |= (1 << 0) | (1 << 1) | (1 << 2);  // Set SCK, MOSI, SS
-    report->Bytes[11] &= ~(1 << 2);                      // Clear MISO as input
+void SPI::enableSPI() {
+    // Set !LCD_ON high
+    report->Bytes[4] |= (1 << 0);
 
-    // Write configuration
+    // Set 7SEG&!SPI (P5.7) to Low
+    report->Bytes[5] &= ~(1 << 7);
+
     IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
 
 void SPI::disableSPI() {
-    // Reset SCK and SS pins to low
-    report->Bytes[10] &= ~((1 << 0) | (1 << 1));
+    report->Bytes[4] |= (1 << 0); // !LCD_ON high
+    report->Bytes[5] |= (1 << 7); // 7SEG&!SPI high
+
     IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
 
@@ -62,34 +62,34 @@ void SPI::transferByte(uint8_t data) {
 }
 
 void SPI::transfer16(uint16_t data) {
+    enableSPI();
+
+    report->Bytes[10] &= ~(1 << 0); // SCK LOW
+    IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
+
+    // Shift out 16 bits MSB first
     for (int i = 15; i >= 0; i--) {
-        // Set MOSI bit
+        // Set MOSI bit (data is stable before the clock rising edge)
         if (data & (1 << i)) {
-            report->Bytes[10] |= (1 << 2);  // MOSI high
+            report->Bytes[10] |= (1 << 2);  // MOSI HIGH
         }
         else {
-            report->Bytes[10] &= ~(1 << 2); // MOSI low
+            report->Bytes[10] &= ~(1 << 2); // MOSI LOW
         }
 
-        // Toggle clock SCK
-        report->Bytes[10] |= (1 << 0);  // Clock high
+        IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
+
+        // Toggle clock (SCK)
+        report->Bytes[10] |= (1 << 0);  // SCK HIGH (rising edge)
         IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
         std::this_thread::sleep_for(std::chrono::microseconds(1));
 
-        report->Bytes[10] &= ~(1 << 0); // Clock low
+        report->Bytes[10] &= ~(1 << 0); // SCK LOW (falling edge)
         IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
         std::this_thread::sleep_for(std::chrono::microseconds(1));
     }
-
-    // Toggle !SS low to latch data
-    report->Bytes[10] &= ~(1 << 1);  // SS low
-    IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
-    std::this_thread::sleep_for(std::chrono::microseconds(1));
-
-    // Bring !SS high to complete latch
-    report->Bytes[10] |= (1 << 1);   // SS high
-    IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
+
 
 uint8_t SPI::readByte() {
     return readData;

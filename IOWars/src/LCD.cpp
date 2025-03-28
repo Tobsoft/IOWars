@@ -62,6 +62,11 @@ void LCD::setBacklight(bool state) {
 		report->Bytes[8] &= ~(1 << 7); // Clear bit 7
 	}
     IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
+
+    // SG-OUT and STB must be on
+    report->Bytes[5] |= 0x03; // SG-OUT
+    report->Bytes[0] |= 0x80; // STB
+    IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
 
 void LCD::setData(byte data) {
@@ -216,6 +221,7 @@ void LCD::write(const char *message) {
 			}
         }
     }
+    setOn(false);
     printf("\nWrote String to LCD:\n%s", message);
     printf("\n");
 }

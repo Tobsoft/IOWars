@@ -16,23 +16,15 @@ Leds::~Leds() {
 }
 
 void Leds::init() {
-	report->ReportID=0x00;   //82bit für 82pin Modus
-	report->Bytes[0]=0x80; 	//Strobe (STB) Signal auf HIGH (Leitung P0->7)
-	report->Bytes[1]=0xFF;	// Port 1 ist unbenutzt (siehe Blockschaltbild, SLP)
-	report->Bytes[2]=0xFF;	// I2C; aktuell unbenutzt, daher 0xFF
-	report->Bytes[3]=0xFF;	// Port 3 ist unbenutzt (siehe Blockschaltbild, SLP)
-	report->Bytes[4]=0xFF;	// LCD; aktuell unbenutzt, daher 0xFF
-	report->Bytes[5]=0x05;	// Steuerschaltung ?ber D10 + LCD; aktuell unbenutzt, daher 0xFF; PC und PD mit 0x0A - PA und PB mit 0x05
-	report->Bytes[6]=0xFF;	// Port 6 ist unbenutzt (siehe Blockschaltbild, SLP)				
-	report->Bytes[7]=0xFF;	// Port 7 ist unbenutzt (siehe Blockschaltbild, SLP)				
+	report->Bytes[5]=0x05;	// Steuerschaltung über D10 + LCD; PC und PD mit 0x0A - PA und PB mit 0x05			
 	report->Bytes[8]=PA;		// LED-Ports PA (PC und Stargate-LEDs)
 	report->Bytes[9]=PB;		// LED-Ports PB	(PD und Tastenabfrage vom Stargate)
-	report->Bytes[10]=0xFF;	// SPI; aktuell unbenutzt, daher 0xFF
-	report->Bytes[11]=0xFF;	// SPI; aktuell unbenutzt, daher 0xFF
+	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
 
 void Leds::clear() {
 	report->Bytes[5] = 0x05; // PA & PB
+	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 	report->Bytes[8] = 0x00; // PA/PC
 	report->Bytes[9] = 0x00; // PB/PD
 	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
@@ -42,6 +34,7 @@ void Leds::clear() {
 
 void Leds::allOn() {
 	report->Bytes[5] = 0x05; // PA & PB
+	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 	report->Bytes[8] = 0xFF; // PA/PC
 	report->Bytes[9] = 0xFF; // PB/PD
 	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
@@ -58,6 +51,7 @@ void Leds::byteToPorts(ULONG byte, ULONG *PA, ULONG *PB, ULONG *PC, ULONG *PD) {
 
 void Leds::controlLeds(ULONG PA, ULONG PB, ULONG PC, ULONG PD) {
 	report->Bytes[5] = 0x05; // PA & PB
+	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 	report->Bytes[8] = PA; // PA/PC
 	report->Bytes[9] = PB; // PB/PD
 	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
@@ -83,5 +77,3 @@ void Leds::loopAll() {
 
     clear();
 }
-
-

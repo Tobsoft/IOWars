@@ -21,8 +21,9 @@ class I2C {
 public:
     I2C(IOWKIT_HANDLE* deviceHandle, int speed=I2C_SPEED_10kbit);
     ~I2C();
-    void write(byte* data);
+    void write(byte* data, int length);
     void read(byte addr, byte* buffer, int length);
+    void scan();
 
 private:
     IOWKIT_HANDLE* DevHandle;

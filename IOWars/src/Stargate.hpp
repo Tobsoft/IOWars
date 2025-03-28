@@ -20,6 +20,7 @@ public:
 	Ledbar ledbar;
 	Sound sound;
 
+	void off();
 	void enable_backlight(bool state);
 	void setLeds(byte states); // 0b 0 0 Re3 Re2 Re1 Li3 Li2 Li1
 

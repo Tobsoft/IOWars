@@ -10,8 +10,9 @@ IOWars::IOWars()
     if (!initializeDevice()) {
         exit(EXIT_FAILURE);
     }
+    report.ReportID = 0x00;
+    report.Bytes[0] = 0x80; 	// Strobe (STB) Signal auf HIGH (Leitung P0->7)
 }
-
 
 // Destructor
 IOWars::~IOWars() {

@@ -20,8 +20,12 @@ public:
   // Turn all LEDs off
   void clear();
 
+  // Enable/Disable the Ledbar
+  void enable(bool state);
+
 private:
   SPI* spi;  // Pointer to SPI object for communication
+  void latchEnable(bool state);
 };
 
 #endif

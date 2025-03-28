@@ -1,5 +1,6 @@
 // I2C.cpp
 
+#include <iomanip>
 #include "IOWarsWeiT.hpp"
 #include "I2C.hpp"
 
@@ -20,8 +21,7 @@ void I2C::enable(bool state, int speed) {
 	IowKitWrite(*DevHandle, IOW_PIPE_I2C_MODE, (PCHAR)&enableReport, IOWKIT100_I2C_REPORT_SIZE);
 }
 
-void I2C::write(byte* data) {
-    int length = sizeof(*data);
+void I2C::write(byte* data, int length) {
     const int MAX_DATA_BYTES = 62;
     IOWKIT100_SPECIAL_REPORT report;
     memset(&report, 0x00, sizeof(report));
@@ -87,7 +87,7 @@ void I2C::write(byte* data) {
             break;
         case I2C_ERR_NACK:
             printf("NACK received!\n");
-            return;  // Exit if no acknowledgment
+            break;
         case I2C_ERR_BUS:
             printf("Bus Error!\n");
             return;  // Exit if bus error occurs
@@ -123,4 +123,45 @@ void I2C::read(byte addr, byte* buffer, int length) {
             bytesReceived += chunkSize;
         }
     }
+
+    // TODO: Send ACK
+}
+
+void I2C::scan() {
+    IOWKIT100_SPECIAL_REPORT report;
+    int num = 0;
+
+    //Search for I2C devices on bus
+    for (int i = 1; i < 127; i++)
+    {
+        memset(&report, 0, IOWKIT100_SPECIAL_REPORT_SIZE);
+        report.ReportID = 0x03;		//Read
+        report.Bytes[0] = 0x01;		//count
+        report.Bytes[1] = (i << 1) | 0x01;	//8bit I2C address + read bit
+        report.Bytes[2] = 0x00;		//Mcount
+
+        if (IowKitWrite(DevHandle, IOW_PIPE_I2C_MODE, (char*)&report, IOWKIT100_SPECIAL_REPORT_SIZE) == IOWKIT100_SPECIAL_REPORT_SIZE)
+        {
+            if (IowKitRead(DevHandle, IOW_PIPE_I2C_MODE, (char*)&report, IOWKIT100_SPECIAL_REPORT_SIZE) == IOWKIT100_SPECIAL_REPORT_SIZE)
+            {
+                if (report.Bytes[0] == 0x01) //Read byte 0, if byte value = 1 -> device present
+                {
+                    std::cout << "I2C device found (7bit): 0x" << std::setfill('0') << std::setw(2) << std::hex << (i & 0xFF) << std::dec << std::endl;
+                    num++;
+                }
+            }
+            else
+            {
+                std::cout << "Error: Fail to read from IO-Warrior100 (IowKitRead())" << std::endl;
+                break;
+            }
+        }
+        else
+        {
+            std::cout << "Error: Fail to write IO-Warrior100 (IowKitWrite())" << std::endl;
+            break;
+        }
+    }
+
+    std::cout << "Devices found on I2C bus: " << num << std::endl;
 }

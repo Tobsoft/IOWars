@@ -12,6 +12,8 @@ class Leds {
 		void controlLeds(ULONG PA, ULONG PB, ULONG PC, ULONG PD);
 		void loopAll();
 		void byteToPorts(ULONG byte, ULONG *PA, ULONG *PB, ULONG *PC, ULONG *PD);
+
+		void setPattern(uint32_t pattern);
 		int delay_ms;
 		ULONG PA, PB, PC, PD;
 		

@@ -61,6 +61,11 @@ void Leds::controlLeds(ULONG PA, ULONG PB, ULONG PC, ULONG PD) {
 	IowKitWrite(*DevHandle, IOW_PIPE_IO_PINS, (PCHAR)report, IOWKIT100_IO_REPORT_SIZE);
 }
 
+void Leds::setPattern(uint32_t pattern) {
+	byteToPorts(pattern, &PA, &PB, &PC, &PD);
+	controlLeds(PA, PB, PC, PD);
+}
+
 void Leds::loopAll() {
     clear();
     system("pause");

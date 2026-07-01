@@ -7,6 +7,8 @@
 #include <conio.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdint.h>
+#include <cstdint>
 
 extern "C" {
 #include<iowkit.h>

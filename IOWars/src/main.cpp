@@ -5,7 +5,7 @@
 #include <thread>
 #include <atomic>
 
-const char MIDI_FILE_PATH[] = "midi/SwedenC418.mid"; // Path to the MIDI file
+const char MIDI_FILE_PATH[] = "midi/TheLastLightkeeper.mid"; // Path to the MIDI file
 
 void stargateStroboscope(IOWars& ioWars, int delay_ms = 100) {
 	ioWars.stargate.off();
